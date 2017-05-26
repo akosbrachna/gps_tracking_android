@@ -119,14 +119,14 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 {
                     status.setText("Sending login request to server...");
 
-                    String url = "https://" + server_address.getText().toString()
+                    String url = server_address.getText().toString()
                             + "/android/data_exchange/check_my_connection/" + email + "/" + password;
                     new CheckConnectionTask(activity).execute(url);
                 }
                 if (!phone.isEmpty()) {
                     try {
                         SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage(phone, null, "http://maps.google.com/?q=54.9558,-7.7343", null, null);
+                        smsManager.sendTextMessage(phone, null, "http://maps.google.com/?q=0.0,0.0", null, null);
                         MyService.isServerConnected = true;
                         status.setText("SMS has been sent successfully");
                     } catch (Exception e) {

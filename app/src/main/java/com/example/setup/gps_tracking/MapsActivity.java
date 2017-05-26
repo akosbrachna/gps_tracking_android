@@ -46,7 +46,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -129,7 +128,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         @Override
         public void run()
         {
-            String url = "https://"+server_address+"/android/data_exchange/get_contacts_locations/"+email+"/"+password;
+            String url = server_address+"/android/data_exchange/get_contacts_locations/"+email+"/"+password;
             new GetUsersCoordinatesTask(MapsActivity.this).execute(url);
             handler.postDelayed(runnableCode, 60 * 1000);
         }

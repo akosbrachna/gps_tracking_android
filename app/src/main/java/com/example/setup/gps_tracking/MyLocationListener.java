@@ -33,7 +33,7 @@ public class MyLocationListener implements LocationListener
         }
         if (!server_address.isEmpty() && !email.isEmpty() && http_enabled)
         {
-            String url_string = "https://" + server_address + "/android/data_exchange/set_my_location/"
+            String url_string = server_address + "/android/data_exchange/set_my_location/"
                               + email+"/"+password+"/"+lat+"/"+lon;
 
             new SendCoordinatesTask().execute(url_string);
