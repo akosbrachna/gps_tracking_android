@@ -1,10 +1,12 @@
 package com.example.setup.gps_tracking;
 
 import android.os.AsyncTask;
-import android.util.Base64;
+import android.widget.Toast;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -15,9 +17,17 @@ import java.util.Calendar;
  * Created by Setup on 10/05/2017.
  */
 
-public class SendCoordinatesTask extends AsyncTask<String, Integer, Long>
+public class httpPostRequestTask extends AsyncTask<String, Integer, Long>
 {
-    public String display_time;
+    public String contacts;
+    private ContactsActivity ca;
+
+    public httpPostRequestTask(ContactsActivity activity)
+    {
+        ca = activity;
+        contacts = ca.contacts;
+    }
+
     @Override
     protected Long doInBackground(String... urls)
     {
@@ -25,10 +35,16 @@ public class SendCoordinatesTask extends AsyncTask<String, Integer, Long>
         {
             URL url = new URL(urls[0]);
 
-            //String basicAuth = "Basic " + Base64.encodeToString("sctuser:atyclb".getBytes(), Base64.NO_WRAP);;
+            HttpURLConnection uc = (HttpURLConnection) url.openConnection();
+            uc.setDoOutput(true);
+            uc.setDoInput(true);
+            uc.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            uc.setRequestMethod("POST");
 
-            URLConnection uc = url.openConnection();
-            //uc.setRequestProperty("Authorization", basicAuth);
+            DataOutputStream localDataOutputStream = new DataOutputStream(uc.getOutputStream());
+            localDataOutputStream.writeBytes(contacts);
+            localDataOutputStream.flush();
+            localDataOutputStream.close();
 
             InputStream bis = uc.getInputStream();
             byte[] buffer = new byte[1024];
@@ -40,24 +56,11 @@ public class SendCoordinatesTask extends AsyncTask<String, Integer, Long>
                 sb.append(text);
             }
             bis.close();
-
-            int result=0;
             try
             {
-                result = Integer.parseInt(sb.toString());
+                contacts = sb.toString();
             }
             catch(NumberFormatException nfe) {}
-            String connection_status;
-            if (result == 1)
-                connection_status = "\nConnection to server is up";
-            else
-                connection_status = "\nConnection to server is down";
-
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            display_time = "Last updated: " + formatter.format(calendar.getTime());
-            display_time += connection_status;
         }
         catch (MalformedURLException e)
         {
@@ -75,7 +78,6 @@ public class SendCoordinatesTask extends AsyncTask<String, Integer, Long>
     {
         super.onPostExecute(unused);
         this.cancel(true);
-        MyService.sendMessageToUI(display_time, MyService.MSG_STRING_MESSAGE);
+        ca.contacts = contacts;
     }
 }
-

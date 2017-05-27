@@ -31,10 +31,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, httpGetRequestInterface
 {
     private GoogleMap mMap;
-    private ArrayList<Marker> markerlist = new ArrayList<>();
     Handler handler = new Handler();
     private SharedPreferences sp;
     public SharedPreferences.Editor editor;
@@ -70,17 +69,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         handler.post(runnableCode);
     }
 
-    public void show_users_on_map(String json_users)
+    @Override
+    public void RequestResult(String data)
     {
         float zoom = 7;
         try
         {
-            JSONArray users = new JSONArray(json_users);
+            JSONArray users = new JSONArray(data);
 
             if (users.length() > 0 )
             {
                 mMap.clear();
-                json_contacts = json_users;
+                json_contacts = data;
             }
             else {
                 return;
@@ -129,7 +129,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         public void run()
         {
             String url = server_address+"/android/data_exchange/get_contacts_locations/"+email+"/"+password;
-            new GetUsersCoordinatesTask(MapsActivity.this).execute(url);
+            new HttpGetRequestTask(MapsActivity.this).execute(url);
             handler.postDelayed(runnableCode, 60 * 1000);
         }
     };
@@ -137,7 +137,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_map, menu);
         super.onCreateOptionsMenu(menu);
         return true;

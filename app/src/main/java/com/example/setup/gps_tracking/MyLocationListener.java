@@ -7,7 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 
-public class MyLocationListener implements LocationListener
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+public class MyLocationListener implements LocationListener, httpGetRequestInterface
 {
     public String email, password, server_address, sms_number;
     public boolean sms_enabled, http_enabled;
@@ -33,10 +36,8 @@ public class MyLocationListener implements LocationListener
         }
         if (!server_address.isEmpty() && !email.isEmpty() && http_enabled)
         {
-            String url_string = server_address + "/android/data_exchange/set_my_location/"
-                              + email+"/"+password+"/"+lat+"/"+lon;
-
-            new SendCoordinatesTask().execute(url_string);
+            String url = server_address + "/android/data_exchange/set_my_location/"+ email+"/"+password+"/"+lat+"/"+lon;
+            new HttpGetRequestTask(MyLocationListener.this).execute(url);
         }
     }
 
@@ -55,5 +56,28 @@ public class MyLocationListener implements LocationListener
     public void onProviderDisabled(String provider)
     {
         MyService.isGpsEnabled = false;
+    }
+
+    @Override
+    public void RequestResult(String data)
+    {
+        String display_time, connection_status;
+        int result=0;
+        try
+        {
+            result = Integer.parseInt(data);
+        }
+        catch(NumberFormatException nfe) {}
+        if (result == 1)
+            connection_status = "\nConnection to server is up";
+        else
+            connection_status = "\nConnection to server is down";
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        display_time = "Last updated: " + formatter.format(calendar.getTime());
+        display_time += connection_status;
+        MyService.sendMessageToUI(display_time, MyService.MSG_STRING_MESSAGE);
     }
 }

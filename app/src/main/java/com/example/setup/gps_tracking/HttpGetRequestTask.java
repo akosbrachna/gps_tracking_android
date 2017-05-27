@@ -11,18 +11,14 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- * Created by Setup on 10/05/2017.
- */
-
-public class GetUsersCoordinatesTask extends AsyncTask<String, Integer, Long>
+public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
 {
-    public String users;
-    private MapsActivity ma;
+    public String data;
+    private httpGetRequestInterface activity;
 
-    public GetUsersCoordinatesTask(MapsActivity map_activity)
+    public HttpGetRequestTask(httpGetRequestInterface from_activity)
     {
-        ma = map_activity;
+        activity = from_activity;
     }
 
     @Override
@@ -46,7 +42,7 @@ public class GetUsersCoordinatesTask extends AsyncTask<String, Integer, Long>
             bis.close();
             try
             {
-                users = sb.toString();
+                data = sb.toString();
             }
             catch(NumberFormatException nfe) {}
         }
@@ -66,8 +62,6 @@ public class GetUsersCoordinatesTask extends AsyncTask<String, Integer, Long>
     {
         super.onPostExecute(unused);
         this.cancel(true);
-//        ma.editor.putString("users", users);
-//        ma.editor.commit();
-        ma.show_users_on_map(users);
+        activity.RequestResult(data);
     }
 }

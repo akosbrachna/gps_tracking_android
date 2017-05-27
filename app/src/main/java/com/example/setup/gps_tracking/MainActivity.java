@@ -32,7 +32,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public class MainActivity extends AppCompatActivity implements ServiceConnection
+public class MainActivity extends AppCompatActivity implements ServiceConnection, httpGetRequestInterface
 {
     private EditText email_input, password_input, server_address, sms_number;
     public CheckBox boot_enabled, sms_enabled, http_enabled;
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private NumberPicker numberpicker;
     private Messenger mServiceMessenger = null;
     private final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
-    public MainActivity activity = this;
+    //public MainActivity activity = this;
 
     private GoogleApiClient client;
 
@@ -111,8 +111,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                 editor.putString("email", email);
                 editor.putString("password", password);
                 editor.putInt("frequency", freq);
-                editor.putBoolean("sms_enabled", sms_enabled.isChecked());
-                editor.putBoolean("http_enabled", http_enabled.isChecked());
                 editor.commit();
 
                 if (!server_addr.isEmpty())
@@ -121,9 +119,10 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                     String url = server_address.getText().toString()
                             + "/android/data_exchange/check_my_connection/" + email + "/" + password;
-                    new CheckConnectionTask(activity).execute(url);
+                    new HttpGetRequestTask(MainActivity.this).execute(url);
                 }
-                if (!phone.isEmpty()) {
+                if (!phone.isEmpty() && sms_enabled.isChecked())
+                {
                     try {
                         SmsManager smsManager = SmsManager.getDefault();
                         smsManager.sendTextMessage(phone, null, "http://maps.google.com/?q=0.0,0.0", null, null);
@@ -203,7 +202,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -234,18 +232,11 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onStart() {
         super.onStart();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.connect();
         Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
+                Action.TYPE_VIEW,
+                "Main Page",
                 Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
                 Uri.parse("android-app://com.example.setup.gps_tracking/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
@@ -254,21 +245,43 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     @Override
     public void onStop() {
         super.onStop();
-
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
+                Action.TYPE_VIEW,
+                "Main Page",
                 Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
                 Uri.parse("android-app://com.example.setup.gps_tracking/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    public void RequestResult(String data)
+    {
+        int result=0;
+        try
+        {
+            result = Integer.parseInt(data);
+        }
+        catch(NumberFormatException nfe) {}
+        if (result == 1)
+        {
+            MyService.isServerConnected = true;
+            status_message = "Connection successful.\n";
+            if (MyService.isRunning() == false)
+                status_message += "You can start the service.";
+        }
+        else
+        {
+            MyService.isServerConnected = false;
+            status_message = "Connection failed.\n" +
+                    "Please check email and password.";
+        }
+        status.setText(status_message);
+        editor.putBoolean("connected", MyService.isServerConnected);
+        editor.putBoolean("boot_enabled", MyService.isServerConnected);
+        boot_enabled.setChecked(MyService.isServerConnected);
+        editor.commit();
     }
 
     /**
