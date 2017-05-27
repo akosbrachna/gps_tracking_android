@@ -1,6 +1,5 @@
 package com.example.setup.gps_tracking;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -32,7 +31,7 @@ import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-public class MainActivity extends AppCompatActivity implements ServiceConnection, httpGetRequestInterface
+public class SettingsActivity extends AppCompatActivity implements ServiceConnection, httpGetRequestInterface
 {
     private EditText email_input, password_input, server_address, sms_number;
     public CheckBox boot_enabled, sms_enabled, http_enabled;
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
     private NumberPicker numberpicker;
     private Messenger mServiceMessenger = null;
     private final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
-    //public MainActivity activity = this;
 
     private GoogleApiClient client;
 
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
 
                     String url = server_address.getText().toString()
                             + "/android/data_exchange/check_my_connection/" + email + "/" + password;
-                    new HttpGetRequestTask(MainActivity.this).execute(url);
+                    new HttpGetRequestTask(SettingsActivity.this).execute(url);
                 }
                 if (!phone.isEmpty() && sms_enabled.isChecked())
                 {
@@ -150,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
                         status.setText("Please test connection before starting service.");
                         return;
                     }
-                    startService(new Intent(MainActivity.this, MyService.class));
+                    startService(new Intent(SettingsActivity.this, MyService.class));
                     doBindService();
                 }
             }
@@ -215,13 +213,25 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             case R.id.action_map:
                 if (sp.getString("server_address", "").isEmpty())
                 {
-                    Toast.makeText(MainActivity.this,
+                    Toast.makeText(SettingsActivity.this,
                                 "Map won't start without server address, email, password \n" +
                                 "because the locations of the followed members come from the server.",
                             Toast.LENGTH_LONG).show();
                     return true;
                 }
                 myIntent = new Intent(this, MapsActivity.class);
+                startActivity(myIntent);
+                return true;
+            case R.id.action_contacts:
+                if (sp.getString("server_address", "").isEmpty())
+                {
+                    Toast.makeText(SettingsActivity.this,
+                            "Contacts cannot be checked without server address, email, password \n" +
+                                    "because contact details come from the server.",
+                            Toast.LENGTH_LONG).show();
+                    return true;
+                }
+                myIntent = new Intent(this, ContactsActivity.class);
                 startActivity(myIntent);
                 return true;
             default:
@@ -350,7 +360,7 @@ public class MainActivity extends AppCompatActivity implements ServiceConnection
             }
             // Detach our existing connection.
             unbindService(mConnection);
-            stopService(new Intent(MainActivity.this, MyService.class));
+            stopService(new Intent(SettingsActivity.this, MyService.class));
             mIsBound = false;
             status.setText(status_message + "\nService stopped.");
             service_button = (Button) findViewById(R.id.service_button);

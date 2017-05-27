@@ -1,10 +1,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.setup.gps_tracking.MainActivity">
+    tools:context=".SettingsActivity">
     <item
         android:id="@+id/action_map"
         android:orderInCategory="10"
         android:title="@string/action_map"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_contacts"
+        android:orderInCategory="10"
+        android:title="@string/action_contacts"
         app:showAsAction="ifRoom" />
 </menu>

@@ -1,6 +1,5 @@
 package com.example.setup.gps_tracking;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -69,7 +68,7 @@ public class ContactsActivity extends AppCompatActivity implements httpGetReques
         switch (item.getItemId())
         {
             case R.id.action_contacts_settings:
-                myIntent = new Intent(this, MainActivity.class);
+                myIntent = new Intent(this, SettingsActivity.class);
                 startActivity(myIntent);
                 return true;
             case R.id.action_map:
