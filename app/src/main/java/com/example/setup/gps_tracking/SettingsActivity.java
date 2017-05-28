@@ -222,6 +222,7 @@ public class SettingsActivity extends AppCompatActivity implements ServiceConnec
                 myIntent = new Intent(this, MapsActivity.class);
                 startActivity(myIntent);
                 return true;
+
             case R.id.action_contacts:
                 if (sp.getString("server_address", "").isEmpty())
                 {

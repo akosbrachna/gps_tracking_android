@@ -85,37 +85,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             {
                 JSONObject c = users.getJSONObject(i);
                 String name = " "+c.getString("first_name")+" "+c.getString("last_name")+" ";
-                try {
+                try
+                {
                     double latitude = Double.parseDouble(c.getString("latitude"));
                     double longitude = Double.parseDouble(c.getString("longitude"));
 
-                LatLng userLocation = new LatLng(latitude,longitude);
+                    LatLng userLocation = new LatLng(latitude,longitude);
 
-                TextView text = new TextView(MapsActivity.this);
-                text.setText(name);
-                text.setTypeface(null, Typeface.BOLD);
-                text.setTextColor(Color.BLACK);
-                IconGenerator generator = new IconGenerator(MapsActivity.this);
-                //generator.setBackground(MapsActivity.this.getDrawable(R.drawable.turtle));
-                generator.setContentView(text);
-                Bitmap icon = generator.makeIcon();
+                    TextView text = new TextView(MapsActivity.this);
+                    text.setText(name);
+                    text.setTypeface(null, Typeface.BOLD);
+                    text.setTextColor(Color.BLACK);
+                    IconGenerator generator = new IconGenerator(MapsActivity.this);
+                    //generator.setBackground(MapsActivity.this.getDrawable(R.drawable.turtle));
+                    generator.setContentView(text);
+                    Bitmap icon = generator.makeIcon();
 
-                mMap.addMarker(new MarkerOptions()
-                        .position(userLocation)
-                        .icon(BitmapDescriptorFactory.fromBitmap(icon)));
+                    mMap.addMarker(new MarkerOptions()
+                            .position(userLocation)
+                            .icon(BitmapDescriptorFactory.fromBitmap(icon)));
 
-                CircleOptions circleOptions = new CircleOptions();
-                circleOptions.center(userLocation);
-                circleOptions.radius(20);
-                circleOptions.strokeColor(Color.BLACK);
-                circleOptions.fillColor(Color.BLACK);
-                circleOptions.strokeWidth(2);
-                mMap.addCircle(circleOptions);
+                    CircleOptions circleOptions = new CircleOptions();
+                    circleOptions.center(userLocation);
+                    circleOptions.radius(20);
+                    circleOptions.strokeColor(Color.BLACK);
+                    circleOptions.fillColor(Color.BLACK);
+                    circleOptions.strokeWidth(2);
+                    mMap.addCircle(circleOptions);
 
-                if (i == 0)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoom));
-                }catch (NumberFormatException e){
+                    if (i == 0) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoom));
 
+                }
+                catch (NumberFormatException e){
                 }
             }
         }

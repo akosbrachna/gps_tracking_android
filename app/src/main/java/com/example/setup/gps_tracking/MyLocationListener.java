@@ -61,23 +61,21 @@ public class MyLocationListener implements LocationListener, httpGetRequestInter
     @Override
     public void RequestResult(String data)
     {
-        String display_time, connection_status;
+        String display_time = "\nConnection to server is down";
         int result=0;
         try
         {
             result = Integer.parseInt(data);
+            if (result == 1)
+            {
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(System.currentTimeMillis());
+                display_time = "Last updated: " + formatter.format(calendar.getTime())+"\nConnection to server is up";
+            }
         }
-        catch(NumberFormatException nfe) {}
-        if (result == 1)
-            connection_status = "\nConnection to server is up";
-        else
-            connection_status = "\nConnection to server is down";
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        display_time = "Last updated: " + formatter.format(calendar.getTime());
-        display_time += connection_status;
+        catch(NumberFormatException nfe) {
+        }
         MyService.sendMessageToUI(display_time, MyService.MSG_STRING_MESSAGE);
     }
 }
