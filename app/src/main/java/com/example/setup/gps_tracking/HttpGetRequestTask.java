@@ -13,7 +13,7 @@ import java.util.Calendar;
 
 public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
 {
-    public String data;
+    public String data = "[]";
     private httpGetRequestInterface activity;
 
     public HttpGetRequestTask(httpGetRequestInterface from_activity)

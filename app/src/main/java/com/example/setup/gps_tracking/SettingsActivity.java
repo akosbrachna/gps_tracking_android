@@ -269,24 +269,20 @@ public class SettingsActivity extends AppCompatActivity implements ServiceConnec
     public void RequestResult(String data)
     {
         int result=0;
+        MyService.isServerConnected = false;
+        status_message = "Connection failed.\nPlease check email and password.";
         try
         {
             result = Integer.parseInt(data);
+            if (result == 1)
+            {
+                MyService.isServerConnected = true;
+                status_message = "Connection successful.\n";
+                if (MyService.isRunning() == false)
+                    status_message += "You can start the service.";
+            }
         }
         catch(NumberFormatException nfe) {}
-        if (result == 1)
-        {
-            MyService.isServerConnected = true;
-            status_message = "Connection successful.\n";
-            if (MyService.isRunning() == false)
-                status_message += "You can start the service.";
-        }
-        else
-        {
-            MyService.isServerConnected = false;
-            status_message = "Connection failed.\n" +
-                    "Please check email and password.";
-        }
         status.setText(status_message);
         editor.putBoolean("connected", MyService.isServerConnected);
         editor.putBoolean("boot_enabled", MyService.isServerConnected);

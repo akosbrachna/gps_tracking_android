@@ -30,7 +30,7 @@ import org.json.JSONObject;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, httpGetRequestInterface
 {
     private GoogleMap mMap;
-    Handler handler = new Handler();
+    Handler connection_handler = new Handler();
     private SharedPreferences sp;
     public SharedPreferences.Editor editor;
     private String json_contacts;
@@ -62,7 +62,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         float zoom = 1;
         LatLng myLocation = new LatLng(0.0, 0.0);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, zoom));
-        handler.post(runnableCode);
+        connection_handler.post(fetch_contacts_from_server);
     }
 
     @Override
@@ -85,8 +85,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             {
                 JSONObject c = users.getJSONObject(i);
                 String name = " "+c.getString("first_name")+" "+c.getString("last_name")+" ";
-                double latitude = Double.parseDouble(c.getString("latitude"));
-                double longitude = Double.parseDouble(c.getString("longitude"));
+                try {
+                    double latitude = Double.parseDouble(c.getString("latitude"));
+                    double longitude = Double.parseDouble(c.getString("longitude"));
+
                 LatLng userLocation = new LatLng(latitude,longitude);
 
                 TextView text = new TextView(MapsActivity.this);
@@ -110,7 +112,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 circleOptions.strokeWidth(2);
                 mMap.addCircle(circleOptions);
 
-                if (i == 0) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoom));
+                if (i == 0)
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoom));
+                }catch (NumberFormatException e){
+
+                }
             }
         }
         catch (JSONException e)
@@ -119,14 +125,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private Runnable runnableCode = new Runnable()
+    private Runnable fetch_contacts_from_server = new Runnable()
     {
         @Override
         public void run()
         {
             String url = server_address+"/android/data_exchange/get_contacts_locations/"+email+"/"+password;
             new HttpGetRequestTask(MapsActivity.this).execute(url);
-            handler.postDelayed(runnableCode, 60 * 1000);
+            connection_handler.postDelayed(fetch_contacts_from_server, 60 * 1000);
         }
     };
 
@@ -150,7 +156,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 return true;
             case R.id.action_contacts:
                 myIntent = new Intent(this, ContactsActivity.class);
-                myIntent.putExtra("json_contacts", json_contacts);
                 startActivity(myIntent);
                 return true;
             default:
@@ -162,6 +167,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onDestroy()
     {
         super.onDestroy();
-        handler.removeCallbacks(runnableCode);
+        connection_handler.removeCallbacks(fetch_contacts_from_server);
     }
 }

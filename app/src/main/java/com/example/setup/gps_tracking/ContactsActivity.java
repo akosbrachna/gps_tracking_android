@@ -72,7 +72,6 @@ public class ContactsActivity extends AppCompatActivity implements httpGetReques
                 startActivity(myIntent);
                 return true;
             case R.id.action_map:
-                new httpPostRequestTask(ContactsActivity.this);
                 myIntent = new Intent(this, MapsActivity.class);
                 startActivity(myIntent);
                 return true;
@@ -127,32 +126,29 @@ public class ContactsActivity extends AppCompatActivity implements httpGetReques
                     }
                 }
             });
+            listView.post(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < users.length(); i++) {
+                        try {
+                            JSONObject c = users.getJSONObject(i);
+                            String status = c.getString("status");
+                            if (status.toLowerCase().contains("invisible")) {
+                                listView.getChildAt(i).setBackgroundColor(Color.rgb(255, 255, 255));
+                            } else {
+                                listView.getChildAt(i).setBackgroundColor(Color.rgb(125, 75, 236));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         }
         catch (JSONException e)
         {
             e.printStackTrace();
         }
-        listView.post(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < users.length(); i++)
-                {
-                    try {
-                        JSONObject c = users.getJSONObject(i);
-                        String status = c.getString("status");
-                        if (status.toLowerCase().contains("invisible"))
-                        {
-                            listView.getChildAt(i).setBackgroundColor(Color.rgb(255, 255, 255));
-                        }
-                        else{
-                            listView.getChildAt(i).setBackgroundColor(Color.rgb(125, 75, 236));
-                        }
-                    }catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -170,7 +166,7 @@ public class ContactsActivity extends AppCompatActivity implements httpGetReques
                     return;
                 case 0:
                     Toast.makeText(ContactsActivity.this,
-                            "failed sending modification on server, please test your connection",
+                            "failed sending modification to server, please test your connection",
                             Toast.LENGTH_LONG).show();
                     return;
             }
