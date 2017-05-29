@@ -162,12 +162,12 @@ public class ContactsActivity extends AppCompatActivity implements httpGetReques
             {
                 case 1:
                     Toast.makeText(ContactsActivity.this,
-                            "successfully modified on server.", Toast.LENGTH_LONG).show();
+                            "successfully modified on server.", Toast.LENGTH_SHORT).show();
                     return;
                 case 0:
                     Toast.makeText(ContactsActivity.this,
                             "failed sending modification to server, please test your connection",
-                            Toast.LENGTH_LONG).show();
+                            Toast.LENGTH_SHORT).show();
                     return;
             }
         }
