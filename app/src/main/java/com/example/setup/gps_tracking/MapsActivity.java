@@ -35,6 +35,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public SharedPreferences.Editor editor;
     private String json_contacts;
     private String server_address, email, password;
+    private int request_counter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -52,6 +53,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         server_address = sp.getString("server_address", "");
         email = sp.getString("email", "");
         password = sp.getString("password", "");
+        request_counter = 0;
     }
 
     @Override
@@ -59,16 +61,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         mMap = googleMap;
 
-        float zoom = 1;
         LatLng myLocation = new LatLng(0.0, 0.0);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, zoom));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 1));
         connection_handler.post(fetch_contacts_from_server);
     }
 
     @Override
     public void RequestResult(String data)
     {
-        float zoom = 7;
         try
         {
             JSONArray users = new JSONArray(data);
@@ -113,7 +113,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     circleOptions.strokeWidth(2);
                     mMap.addCircle(circleOptions);
 
-                    if (i == 0) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, zoom));
+                    if (request_counter == 0) {
+                        request_counter = 1;
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 8));
+                    }
 
                 }
                 catch (NumberFormatException e){
