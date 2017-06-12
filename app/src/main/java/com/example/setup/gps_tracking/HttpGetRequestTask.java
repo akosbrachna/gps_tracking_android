@@ -11,6 +11,8 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.net.ssl.HttpsURLConnection;
+
 public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
 {
     public String data = "[]";
@@ -24,27 +26,37 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
     @Override
     protected Long doInBackground(String... urls)
     {
+        InputStream stream = null;
+        HttpsURLConnection uc = null;
         try
         {
             URL url = new URL(urls[0]);
 
-            URLConnection uc = url.openConnection();
+            uc = (HttpsURLConnection)url.openConnection();
+            uc.setConnectTimeout(10000);
+            uc.setDoInput(true);
+            uc.setRequestMethod("GET");
+            uc.connect();
 
-            InputStream bis = uc.getInputStream();
+            int responseCode = uc.getResponseCode();
+            if (responseCode != HttpsURLConnection.HTTP_OK)
+            {
+                throw new IOException("HTTP error code: " + responseCode);
+            }
+
+            stream = uc.getInputStream();
             byte[] buffer = new byte[1024];
             StringBuilder sb = new StringBuilder();
             int bytesRead = 0;
-            while ((bytesRead = bis.read(buffer)) > 0)
+            if (stream != null)
             {
-                String text = new String(buffer, 0, bytesRead);
-                sb.append(text);
-            }
-            bis.close();
-            try
-            {
+                while ((bytesRead = stream.read(buffer)) > 0)
+                {
+                    String text = new String(buffer, 0, bytesRead);
+                    sb.append(text);
+                }
                 data = sb.toString();
             }
-            catch(NumberFormatException nfe) {}
         }
         catch (MalformedURLException e)
         {
@@ -53,6 +65,24 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
         catch (IOException e)
         {
             e.printStackTrace();
+        }
+        finally
+        {
+            if (stream != null)
+            {
+                try
+                {
+                    stream.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            if (uc != null)
+            {
+                uc.disconnect();
+            }
         }
         return null;
     }

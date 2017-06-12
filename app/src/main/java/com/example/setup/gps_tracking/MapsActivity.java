@@ -33,7 +33,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     Handler connection_handler = new Handler();
     private SharedPreferences sp;
     public SharedPreferences.Editor editor;
-    private String json_contacts;
     private String server_address, email, password;
     private int request_counter;
 
@@ -71,23 +70,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         try
         {
-            JSONArray users = new JSONArray(data);
+            JSONArray contacts = new JSONArray(data);
 
-            if (users.length() > 0 )
+            if ( contacts.length() == 0 )
             {
-                mMap.clear();
-                json_contacts = data;
-            }
-            else {
                 return;
             }
-            for (int i = 0; i < users.length(); i++)
+            mMap.clear();
+            for (int i = 0; i < contacts.length(); i++)
             {
-                JSONObject c = users.getJSONObject(i);
+                JSONObject c = contacts.getJSONObject(i);
                 String name = " "+c.getString("first_name")+" "+c.getString("last_name")+" ";
                 try
                 {
-                    double latitude = Double.parseDouble(c.getString("latitude"));
+                    double latitude  = Double.parseDouble(c.getString("latitude"));
                     double longitude = Double.parseDouble(c.getString("longitude"));
 
                     LatLng userLocation = new LatLng(latitude,longitude);
@@ -97,13 +93,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     text.setTypeface(null, Typeface.BOLD);
                     text.setTextColor(Color.BLACK);
                     IconGenerator generator = new IconGenerator(MapsActivity.this);
-                    //generator.setBackground(MapsActivity.this.getDrawable(R.drawable.turtle));
                     generator.setContentView(text);
                     Bitmap icon = generator.makeIcon();
 
-                    mMap.addMarker(new MarkerOptions()
-                            .position(userLocation)
-                            .icon(BitmapDescriptorFactory.fromBitmap(icon)));
+                    mMap.addMarker(new MarkerOptions().position(userLocation)
+                                                      .icon(BitmapDescriptorFactory.fromBitmap(icon)));
 
                     CircleOptions circleOptions = new CircleOptions();
                     circleOptions.center(userLocation);
@@ -113,7 +107,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     circleOptions.strokeWidth(2);
                     mMap.addCircle(circleOptions);
 
-                    if (request_counter == 0) {
+                    if (request_counter == 0)
+                    {
                         request_counter = 1;
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 8));
                     }
