@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -27,12 +28,12 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
     protected Long doInBackground(String... urls)
     {
         InputStream stream = null;
-        HttpsURLConnection uc = null;
+        HttpURLConnection uc = null;
         try
         {
             URL url = new URL(urls[0]);
 
-            uc = (HttpsURLConnection)url.openConnection();
+            uc = (HttpURLConnection)url.openConnection();
             uc.setConnectTimeout(10000);
             uc.setDoInput(true);
             uc.setRequestMethod("GET");
