@@ -1,20 +1,16 @@
 package com.example.setup.gps_tracking;
 
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
+public class HttpGetRequestTask extends AsyncTask<String, Integer, Boolean>
 {
     public String data = "[]";
     private httpGetRequestInterface activity;
@@ -25,7 +21,7 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
     }
 
     @Override
-    protected Long doInBackground(String... urls)
+    protected Boolean doInBackground(String... urls)
     {
         InputStream stream = null;
         HttpURLConnection uc = null;
@@ -34,15 +30,13 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
             URL url = new URL(urls[0]);
 
             uc = (HttpURLConnection)url.openConnection();
-            uc.setConnectTimeout(10000);
-            uc.setDoInput(true);
-            uc.setRequestMethod("GET");
-            uc.connect();
+            uc.setConnectTimeout(15000);
+            uc.setReadTimeout(15000);
 
             int responseCode = uc.getResponseCode();
-            if (responseCode != HttpsURLConnection.HTTP_OK)
+            if (responseCode != HttpURLConnection.HTTP_OK)
             {
-                throw new IOException("HTTP error code: " + responseCode);
+                throw new IOException("0");
             }
 
             stream = uc.getInputStream();
@@ -59,13 +53,17 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
                 data = sb.toString();
             }
         }
+        catch (java.net.SocketTimeoutException e)
+        {
+            data = "0";
+        }
         catch (MalformedURLException e)
         {
-            e.printStackTrace();
+            data = "0";
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            data = "0";
         }
         finally
         {
@@ -77,7 +75,7 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
                 }
                 catch (IOException e)
                 {
-                    e.printStackTrace();
+                    data = "0";
                 }
             }
             if (uc != null)
@@ -85,11 +83,11 @@ public class HttpGetRequestTask extends AsyncTask<String, Integer, Long>
                 uc.disconnect();
             }
         }
-        return null;
+        return true;
     }
 
     @Override
-    protected void onPostExecute(Long unused)
+    protected void onPostExecute(Boolean unused)
     {
         super.onPostExecute(unused);
         this.cancel(true);

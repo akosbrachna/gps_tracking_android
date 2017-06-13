@@ -62,7 +62,7 @@ public class MyLocationListener implements LocationListener, httpGetRequestInter
     public void RequestResult(String data)
     {
         String display_time = "\nConnection to server is down";
-        int result=0;
+        int result = 0;
         try
         {
             result = Integer.parseInt(data);
